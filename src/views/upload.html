@@ -1,13 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>123</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF 轉 HTML</title>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    h1 { font-size: 1.4rem; margin-bottom: 24px; }
+    .upload-area { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; }
+    input[type="file"] { flex: 1; }
+    button { padding: 8px 20px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; }
+    button:disabled { background: #93c5fd; cursor: not-allowed; }
+    #status { font-size: 0.9rem; color: #64748b; min-height: 1.4em; }
+    #status.error { color: #dc2626; }
+    #preview-wrap { display: none; margin-top: 24px; }
+    #preview-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    #preview-header h2 { font-size: 1rem; margin: 0; }
+    #download-btn { padding: 6px 16px; background: #16a34a; font-size: 0.85rem; }
+    #preview { width: 100%; height: 70vh; border: 1px solid #e2e8f0; border-radius: 6px; }
+  </style>
 </head>
 <body>
-    <form action="/file" method="post" enctype="multipart/form-data">
-        <button type="submit">送出</button>
-    </form>
+  <h1>PDF 轉 HTML 測試</h1>
+
+  <div class="upload-area">
+    <input type="file" id="file-input" accept=".pdf,application/pdf">
+    <button id="submit-btn" onclick="upload()">上傳並轉換</button>
+  </div>
+  <div id="status"></div>
+
+  <div id="preview-wrap">
+    <div id="preview-header">
+      <h2>轉換結果預覽</h2>
+      <button id="download-btn" onclick="download()">下載 HTML</button>
+    </div>
+    <iframe id="preview" sandbox="allow-same-origin allow-scripts"></iframe>
+  </div>
+
+  <script>
+    async function upload() {
+      const input = document.getElementById('file-input')
+      const status = document.getElementById('status')
+      const btn = document.getElementById('submit-btn')
+      const previewWrap = document.getElementById('preview-wrap')
+      const preview = document.getElementById('preview')
+
+      if (!input.files[0]) {
+        status.textContent = '請先選擇 PDF 檔案'
+        status.className = 'error'
+        return
+      }
+
+      status.textContent = '轉換中，請稍候…'
+      status.className = ''
+      btn.disabled = true
+      previewWrap.style.display = 'none'
+
+      const form = new FormData()
+      form.append('file', input.files[0])
+
+      try {
+        const res = await fetch('/pdf/to-html', { method: 'POST', body: form })
+        const data = await res.json()
+
+        if (!res.ok) {
+          status.textContent = '錯誤：' + (data.error ?? res.statusText)
+          status.className = 'error'
+          return
+        }
+
+        const blob = new Blob([data.html], { type: 'text/html' })
+        const url = URL.createObjectURL(blob)
+        preview.src = url
+        preview.dataset.blobUrl = url
+        preview.dataset.filename = input.files[0].name.replace(/\.pdf$/i, '.html')
+        previewWrap.style.display = 'block'
+        status.textContent = '轉換成功'
+      } catch (err) {
+        status.textContent = '請求失敗：' + err.message
+        status.className = 'error'
+      } finally {
+        btn.disabled = false
+      }
+    }
+
+    function download() {
+      const preview = document.getElementById('preview')
+      const a = document.createElement('a')
+      a.href = preview.dataset.blobUrl
+      a.download = preview.dataset.filename || 'output.html'
+      a.click()
+    }
+  </script>
 </body>
 </html>

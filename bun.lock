@@ -11,14 +11,15 @@
         "hono": "^4.12.25",
         "pdf-lib": "^1.17.1",
         "pdf-parse": "^2.4.5",
+        "pdftohtmljs": "^0.6.0",
         "swagger-jsdoc": "^6.3.0",
-        "vitest": "^4.1.8",
         "zod": "^4.4.3",
       },
       "devDependencies": {
         "@types/node": "^20.11.17",
         "tsx": "^4.7.1",
         "typescript": "^5.8.3",
+        "vitest": "^4.1.8",
       },
     },
   },
@@ -358,6 +359,8 @@
     "pdf-parse": ["pdf-parse@2.4.5", "", { "dependencies": { "@napi-rs/canvas": "0.1.80", "pdfjs-dist": "5.4.296" }, "bin": { "pdf-parse": "bin/cli.mjs" } }, "sha512-mHU89HGh7v+4u2ubfnevJ03lmPgQ5WU4CxAVmTSh/sxVTEDYd1er/dKS/A6vg77NX47KTEoihq8jZBLr8Cxuwg=="],
 
     "pdfjs-dist": ["pdfjs-dist@5.4.296", "", { "optionalDependencies": { "@napi-rs/canvas": "^0.1.80" } }, "sha512-DlOzet0HO7OEnmUmB6wWGJrrdvbyJKftI1bhMitK7O2N8W2gc757yyYBbINy9IDafXAV9wmKr9t7xsTaNKRG5Q=="],
+
+    "pdftohtmljs": ["pdftohtmljs@0.6.0", "", { "bin": { "pdftohtmljs": "bin/pdftohtmljs" } }, "sha512-9ihk3VQNwl45Qcj20p7Y6bFJxobvluvJVg24m+WZTYOxKqd5X/nNIWKj8X6UycTfrE7H6ittXWqV+UE/1q62yg=="],
 
     "picocolors": ["picocolors@1.1.1", "", {}, "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="],
 

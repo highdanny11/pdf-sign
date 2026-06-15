@@ -7,6 +7,11 @@
 ## [Unreleased]
 
 ### 新增
+- **`POST /pdf/to-html`**：接收 PDF 上傳，透過 `pdf2htmlEX` 轉換為完全自含 HTML（CSS、字型、圖片均 inline），以 `{ html: "..." }` JSON 格式回傳
+- **Zod 請求驗證**：`POST /pdf/to-html` 使用 Zod 驗證上傳欄位（MIME 型別、副檔名、大小上限 50 MB）
+- **Docker 容器化**：新增 `Dockerfile`（基於 `pdf2htmlex/pdf2htmlex` Ubuntu 20.04 + `oven/bun:1`）、`docker-compose.yml`、`.dockerignore`
+- **PDF 上傳 UI**（`src/views/upload.html`）：改版為完整的 PDF 轉換介面，含上傳、轉換進度提示、`<iframe>` 即時預覽、HTML 下載（檔名自動由 `.pdf` 改為 `.html`）
+- **`src/types/pdftohtmljs.d.ts`**：為 `pdftohtmljs`（CJS 無型別定義）補充 ambient TypeScript 型別宣告
 - **EventLog 功能**：每個 API 請求自動產生 `traceId`（UUID v4），寫入 response header `X-Trace-Id`
 - **EventLog 儲存**：請求資訊（method、path、status、duration、error）以 JSON Lines 格式持久化至 `logs/event-YYYY-MM-DD.log`
 - **EventLog 查詢**：`GET /event-logs`，支援 `?traceId=` 過濾
@@ -31,8 +36,6 @@
 - PDF 簽章嵌入（pdf-lib + fontkit）
 - PDF 翻譯（deepl-node）
 - API 文件（swagger-jsdoc + Swagger UI）
-- 請求驗證（zod）
-- 檔案上傳功能（需重新確認需求）
 
 ---
 
