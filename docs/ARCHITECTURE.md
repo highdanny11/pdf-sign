@@ -17,16 +17,17 @@ pdf-sign/
 │   ├── controllers/
 │   │   ├── page.controller.ts      # GET / 的 HTTP 處理（讀取 view，try/catch）
 │   │   ├── eventLog.controller.ts  # GET /event-logs、DELETE /event-logs
-│   │   └── pdf.controller.ts       # POST /pdf/to-html（Zod 驗證、呼叫 pdfBufferToHtml）
+│   │   └── pdf.controller.ts       # POST /pdf/to-html、POST /pdf/to-markdown（共用 Zod UploadSchema）
 │   ├── routes/
 │   │   ├── page.routes.ts          # 頁面路由（GET /）
 │   │   ├── eventLog.routes.ts      # Event log 路由
-│   │   └── pdf.routes.ts           # PDF 路由（POST /pdf/to-html）
+│   │   └── pdf.routes.ts           # PDF 路由（POST /pdf/to-html、POST /pdf/to-markdown）
 │   ├── views/
 │   │   └── upload.html             # 首頁 HTML：PDF 上傳、轉換、預覽、下載介面
 │   └── utils/
 │       ├── sanitizeFilename.ts     # 檔名安全處理（path traversal 防護）
-│       └── pdfToHtml.ts            # PDF → HTML 轉換工具（呼叫 pdf2htmlEX 並管理臨時檔案）
+│       ├── pdfToHtml.ts            # PDF → HTML 轉換工具（呼叫 pdf2htmlEX 並管理臨時檔案）
+│       └── pdfToMarkdown.ts        # PDF → Markdown 轉換工具（使用 pdf-parse，不依賴外部二進位）
 ├── logs/                           # Event log 檔案目錄（runtime 自動建立，不進 Git）
 │   └── event-YYYY-MM-DD.log        # 每天一個 JSON Lines 格式 log 檔
 ├── dist/                           # TypeScript 編譯輸出（bun run build，不進 Git）
@@ -72,7 +73,7 @@ bun run dev
             └─ app.use('*', traceIdMiddleware)   ←─ 全域 middleware
             └─ app.route('/', pageRoutes)         ←─ GET /
             └─ app.route('/', eventLogRoutes)     ←─ GET /event-logs, DELETE /event-logs
-            └─ app.route('/', pdfRoutes)          ←─ POST /pdf/to-html
+            └─ app.route('/', pdfRoutes)          ←─ POST /pdf/to-html, POST /pdf/to-markdown
        └─ serve({ fetch: app.fetch, port: Number(process.env.PORT) || 3000 })
             └─ Node.js HTTP server 監聽 :PORT（預設 3000）
 ```
@@ -107,6 +108,7 @@ docker compose up
 | GET | `/event-logs` | `eventLog.controller.ts::getEventLogs` | 查詢 event log，支援 `?traceId=` 過濾 |
 | DELETE | `/event-logs` | `eventLog.controller.ts::deleteEventLogs` | 清除所有 event log 檔案 |
 | POST | `/pdf/to-html` | `pdf.controller.ts::pdfToHtml` | 上傳 PDF，回傳自含 HTML（`{ html: "..." }`） |
+| POST | `/pdf/to-markdown` | `pdf.controller.ts::pdfToMarkdown` | 上傳 PDF，回傳 Markdown 與 metadata（`{ markdown: "...", metadata: {...} }`） |
 
 > 所有路由的 response 均含 `X-Trace-Id` header（由全域 `traceIdMiddleware` 注入）。
 
@@ -191,6 +193,6 @@ app.use('/event-logs/*', authMiddleware)
 | `zod` | ✅ 已整合 | `src/controllers/pdf.controller.ts` | `POST /pdf/to-html` 的 request 驗證 |
 | `pdf-lib` | 🔲 待整合 | 新路由（如 POST `/pdf/sign`） | 在 PDF 頁面嵌入文字、圖片或數位簽章 |
 | `@pdf-lib/fontkit` | 🔲 待整合 | 與 pdf-lib 搭配使用 | 嵌入自訂字型（中文字型支援） |
-| `pdf-parse` | 🔲 待整合 | 新路由（如 POST `/pdf/parse`） | 從 PDF buffer 擷取純文字 |
+| `pdf-parse` | ✅ 已整合 | `src/utils/pdfToMarkdown.ts` | 從 PDF buffer 擷取各頁文字及 metadata（`PDFParse` class API） |
 | `deepl-node` | 🔲 待整合 | 新路由（如 POST `/pdf/translate`） | 呼叫 DeepL API 翻譯文字 |
 | `swagger-jsdoc` | 🔲 待整合 | app 初始化階段 | 自動從 JSDoc 生成 OpenAPI 3.0 規格 |

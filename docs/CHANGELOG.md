@@ -7,6 +7,7 @@
 ## [Unreleased]
 
 ### 新增
+- **`POST /pdf/to-markdown`**：接收 PDF 上傳，使用 `pdf-parse`（PDF.js）擷取各頁文字及 metadata，格式化為含 YAML front matter（title、author、pages）與頁碼分隔的 Markdown，以 `{ markdown: "...", metadata: { pages, title?, author? } }` 格式回傳；不依賴 `pdf2htmlEX`，本機環境即可使用
 - **`POST /pdf/to-html`**：接收 PDF 上傳，透過 `pdf2htmlEX` 轉換為完全自含 HTML（CSS、字型、圖片均 inline），以 `{ html: "..." }` JSON 格式回傳
 - **Zod 請求驗證**：`POST /pdf/to-html` 使用 Zod 驗證上傳欄位（MIME 型別、副檔名、大小上限 50 MB）
 - **Docker 容器化**：新增 `Dockerfile`（基於 `pdf2htmlex/pdf2htmlex` Ubuntu 20.04 + `oven/bun:1`）、`docker-compose.yml`、`.dockerignore`
